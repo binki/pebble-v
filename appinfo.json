@@ -1,19 +1,15 @@
 {
-    "appKeys": {
-        "answer": 2,
-        "message": 1,
-        "status": 0
-    },
+    "appKeys": {},
     "capabilities": [
         ""
     ],
     "companyName": "aaron@brinkdatabase.com",
-    "longName": "aaronappmsg",
+    "longName": "ProductivityStuff",
     "projectType": "native",
     "resources": {
         "media": [
             {
-                "file": "images/three.png",
+                "file": "images/yes.png",
                 "name": "IMAGE_YES",
                 "targetPlatforms": null,
                 "type": "png"
@@ -21,13 +17,8 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "aaronappmsg",
-    "targetPlatforms": [
-        "aplite",
-        "basalt",
-        "chalk"
-    ],
-    "uuid": "5b97ae1f-30c7-4588-a6e1-a7e73f71d4ee",
+    "shortName": "ProductivityStuff",
+    "uuid": "7980cc16-d9a0-4300-90a9-82157b9fc2c4",
     "versionLabel": "1.0",
     "watchapp": {
         "watchface": false
