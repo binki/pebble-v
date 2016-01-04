@@ -1,5 +1,8 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "message": 1,
+        "status": 0
+    },
     "capabilities": [
         ""
     ],
@@ -18,6 +21,11 @@
     },
     "sdkVersion": "3",
     "shortName": "ProductivityStuff",
+    "targetPlatforms": [
+        "aplite",
+        "basalt",
+        "chalk"
+    ],
     "uuid": "7980cc16-d9a0-4300-90a9-82157b9fc2c4",
     "versionLabel": "1.0",
     "watchapp": {
