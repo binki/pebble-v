@@ -1,0 +1,35 @@
+{
+    "appKeys": {
+        "answer": 2,
+        "message": 1,
+        "status": 0
+    },
+    "capabilities": [
+        ""
+    ],
+    "companyName": "aaron@brinkdatabase.com",
+    "longName": "aaronappmsg",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/three.png",
+                "name": "IMAGE_YES",
+                "targetPlatforms": null,
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "aaronappmsg",
+    "targetPlatforms": [
+        "aplite",
+        "basalt",
+        "chalk"
+    ],
+    "uuid": "5b97ae1f-30c7-4588-a6e1-a7e73f71d4ee",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
