@@ -1,41 +1,50 @@
 #include <pebble.h>
 #include "activity.h"
 #include "yesno_question.h"
+#include "pin_window.h"
 	
 // Key values for AppMessage Dictionary
 enum {
-	STATUS_KEY = 0,	
-	MESSAGE_KEY = 1,
-	ANSWER_KEY = 2,
+	APP_MESSAGE_ACCESS_TOKEN = 0,
+  APP_MESSAGE_PIN = 1,
 };
 
 // Write message to buffer & send
-void send_message(void){
+static void access_token_send(){
 	DictionaryIterator *iter;
+  char access_token[PERSIST_DATA_MAX_LENGTH] = "";
+
+  persist_read_string(APP_MESSAGE_ACCESS_TOKEN, access_token, sizeof(access_token));
 	
 	app_message_outbox_begin(&iter);
-	dict_write_uint8(iter, STATUS_KEY, 0x1);
+	dict_write_cstring(iter, APP_MESSAGE_ACCESS_TOKEN, access_token);
 	
 	dict_write_end(iter);
-  	app_message_outbox_send();
+  app_message_outbox_send();
 }
 
 // Called when a message is received from PebbleKitJS
-static void in_received_handler(DictionaryIterator *received, void *context) {
-	Tuple *tuple;
-	
-	tuple = dict_find(received, STATUS_KEY);
-	if(tuple) {
-		APP_LOG(APP_LOG_LEVEL_DEBUG, "Received Status: %d", (int)tuple->value->uint32); 
-	}
-	
-	tuple = dict_find(received, MESSAGE_KEY);
-	if(tuple) {
-		APP_LOG(APP_LOG_LEVEL_DEBUG, "Received Message: %s", tuple->value->cstring);
-		if (!strcmp(tuple->value->cstring, "dosend")) {
-			send_message();
-		}
-	}}
+static void in_received_handler(DictionaryIterator *iterator, void *context) {
+  Tuple *tuple = dict_read_first(iterator);
+  while (tuple) {
+    switch (tuple->key) {
+      case APP_MESSAGE_ACCESS_TOKEN:
+        /* Is the app setting or requesting? */
+        if (tuple->value->cstring[0]) {
+          /* set */
+          persist_write_string(APP_MESSAGE_ACCESS_TOKEN, tuple->value->cstring);
+        } else {
+          /* request */
+          access_token_send();
+        }
+        break;
+      case APP_MESSAGE_PIN:
+        show_pin_window(tuple->value->cstring);
+        break;
+    }
+    tuple = dict_read_next(iterator);
+  }
+}
 
 // Called when an incoming message from PebbleKitJS is dropped
 static void in_dropped_handler(AppMessageResult reason, void *context) {	

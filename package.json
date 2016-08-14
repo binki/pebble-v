@@ -1,0 +1,39 @@
+{
+    "author": "aaron@brinkdatabase.com",
+    "dependencies": {},
+    "keywords": [],
+    "name": "the-daily",
+    "pebble": {
+        "capabilities": [
+            ""
+        ],
+        "displayName": "The Daily\u2014Productivity Goal Tracker",
+        "enableMultiJS": false,
+        "messageKeys": {
+            "access-token": 0,
+            "pin": 1
+        },
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/yes.png",
+                    "name": "IMAGE_YES",
+                    "targetPlatforms": null,
+                    "type": "png"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk"
+        ],
+        "uuid": "7980cc16-d9a0-4300-90a9-82157b9fc2c4",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}

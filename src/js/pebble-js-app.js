@@ -1,3 +1,40 @@
+// To support iOS, let’s reimplement Promise!
+var Thenable = function (f) {
+  var completed, completionQueue, done, value, error, scheduled;
+  completionQueue = [];
+  done = function (v, e) {
+    if (completed) throw new Error('Thenables may only be completed once.');
+    completed = true;
+    value = v;
+    error = e;
+    this.then(function () {});
+  };
+  this.then = function (f) {
+    completionQueue.push(f);
+    if (completed && !scheduled) {
+      setTimeout(function () {
+        scheduled = false;
+        while (this.completionQueue.length) {
+          (this.copmletionQueue.shift())();
+        }
+      }, 0);
+      scheduled = true;
+    }
+  };
+  f(function (v) {done(v);}, function (e) {done(undefined, e);});
+};
+
+// Simple façade for testing functionality without
+// requiring real internet interaction.
+var request = XMLHttpRequest;
+var facade = true;
+if (facade) {
+  request = function () {};
+  request.prototype = {
+    open: function () {}
+  };
+}
+
 // Function to send a message to the Pebble using AppMessage API
 function sendMessage() {
 	Pebble.sendAppMessage({"status": 0});
