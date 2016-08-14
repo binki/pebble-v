@@ -7,7 +7,7 @@
         "capabilities": [
             ""
         ],
-        "displayName": "The Daily\u2014Productivity Goal Tracker",
+        "displayName": "The Daily: Productivity Goal Tracker",
         "enableMultiJS": true,
         "messageKeys": [
             "ACCESS_TOKEN",
@@ -15,14 +15,7 @@
         ],
         "projectType": "native",
         "resources": {
-            "media": [
-                {
-                    "file": "images/yes.png",
-                    "name": "IMAGE_YES",
-                    "targetPlatforms": null,
-                    "type": "png"
-                }
-            ]
+            "media": []
         },
         "sdkVersion": "3",
         "targetPlatforms": [
