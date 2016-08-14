@@ -8,11 +8,11 @@
             ""
         ],
         "displayName": "The Daily\u2014Productivity Goal Tracker",
-        "enableMultiJS": false,
-        "messageKeys": {
-            "access-token": 0,
-            "pin": 1
-        },
+        "enableMultiJS": true,
+        "messageKeys": [
+            "ACCESS_TOKEN",
+            "PIN"
+        ],
         "projectType": "native",
         "resources": {
             "media": [
