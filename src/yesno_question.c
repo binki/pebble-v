@@ -3,17 +3,12 @@
 
 // BEGIN AUTO-GENERATED UI CODE; DO NOT MODIFY
 static Window *s_window;
-static GBitmap *s_res_image_yes;
 static TextLayer *s_textlayer_question;
 static ActionBarLayer *s_actionbarlayer_actions;
 
 static void initialise_ui(void) {
   s_window = window_create();
-  #ifndef PBL_SDK_3
-    window_set_fullscreen(s_window, 0);
-  #endif
-  
-  s_res_image_yes = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_YES);
+
   // s_textlayer_question
   s_textlayer_question = text_layer_create(GRect(19, 20, 100, 129));
   text_layer_set_text(s_textlayer_question, "Question?");
@@ -23,8 +18,6 @@ static void initialise_ui(void) {
   s_actionbarlayer_actions = action_bar_layer_create();
   action_bar_layer_add_to_window(s_actionbarlayer_actions, s_window);
   action_bar_layer_set_background_color(s_actionbarlayer_actions, GColorBlack);
-  action_bar_layer_set_icon(s_actionbarlayer_actions, BUTTON_ID_UP, s_res_image_yes);
-  action_bar_layer_set_icon(s_actionbarlayer_actions, BUTTON_ID_DOWN, s_res_image_yes);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_actionbarlayer_actions);
 }
 
@@ -32,7 +25,6 @@ static void destroy_ui(void) {
   window_destroy(s_window);
   text_layer_destroy(s_textlayer_question);
   action_bar_layer_destroy(s_actionbarlayer_actions);
-  gbitmap_destroy(s_res_image_yes);
 }
 // END AUTO-GENERATED UI CODE
 

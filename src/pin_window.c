@@ -10,8 +10,9 @@ static TextLayer *s_textlayer_3;
 
 static void initialise_ui(void) {
   s_window = window_create();
+  window_set_background_color(s_window, GColorBlack);
   #ifndef PBL_SDK_3
-    window_set_fullscreen(s_window, false);
+    window_set_fullscreen(s_window, true);
   #endif
   
   s_res_gothic_28_bold = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
@@ -45,7 +46,6 @@ static void destroy_ui(void) {
 
 static void handle_window_unload(Window* window) {
   destroy_ui();
-  pin_window_shown = 0;
 }
 
 static short pin_window_shown = 0;

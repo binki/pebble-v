@@ -2,22 +2,16 @@
 #include "activity.h"
 #include "yesno_question.h"
 #include "pin_window.h"
-	
-// Key values for AppMessage Dictionary
-enum {
-	APP_MESSAGE_ACCESS_TOKEN = 0,
-  APP_MESSAGE_PIN = 1,
-};
 
 // Write message to buffer & send
 static void access_token_send(){
 	DictionaryIterator *iter;
   char access_token[PERSIST_DATA_MAX_LENGTH] = "";
 
-  persist_read_string(APP_MESSAGE_ACCESS_TOKEN, access_token, sizeof(access_token));
+  persist_read_string(MESSAGE_KEY_ACCESS_TOKEN, access_token, sizeof(access_token));
 	
 	app_message_outbox_begin(&iter);
-	dict_write_cstring(iter, APP_MESSAGE_ACCESS_TOKEN, access_token);
+	dict_write_cstring(iter, MESSAGE_KEY_ACCESS_TOKEN, access_token);
 	
 	dict_write_end(iter);
   app_message_outbox_send();
@@ -27,20 +21,17 @@ static void access_token_send(){
 static void in_received_handler(DictionaryIterator *iterator, void *context) {
   Tuple *tuple = dict_read_first(iterator);
   while (tuple) {
-    switch (tuple->key) {
-      case APP_MESSAGE_ACCESS_TOKEN:
+    if (tuple->key == MESSAGE_KEY_ACCESS_TOKEN) {
         /* Is the app setting or requesting? */
         if (tuple->value->cstring[0]) {
           /* set */
-          persist_write_string(APP_MESSAGE_ACCESS_TOKEN, tuple->value->cstring);
+          persist_write_string(MESSAGE_KEY_ACCESS_TOKEN, tuple->value->cstring);
         } else {
           /* request */
           access_token_send();
         }
-        break;
-      case APP_MESSAGE_PIN:
+    } else if (tuple->key == MESSAGE_KEY_PIN) {
         show_pin_window(tuple->value->cstring);
-        break;
     }
     tuple = dict_read_next(iterator);
   }
@@ -58,7 +49,7 @@ static void handle_yesno_question_hidden_callback(yesno_question_answer answer) 
 	DictionaryIterator *iter;
 	
 	app_message_outbox_begin(&iter);
-	dict_write_uint8(iter, ANSWER_KEY, answer);
+	dict_write_uint8(iter, MESSAGE_KEY_PIN, answer);
 	
 	dict_write_end(iter);
 	app_message_outbox_send();
@@ -73,8 +64,6 @@ void init(void) {
 	app_message_register_outbox_failed(out_failed_handler);
 		
 	app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-	
-	send_message();
 	
 	show_yesno_question("This is my question", handle_yesno_question_hidden_callback);
 }
