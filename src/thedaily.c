@@ -5,13 +5,14 @@
 
 // Write message to buffer & send
 static void access_token_send(){
+  return;
 	DictionaryIterator *iter;
   char access_token[PERSIST_DATA_MAX_LENGTH] = "";
 
-  persist_read_string(MESSAGE_KEY_ACCESS_TOKEN, access_token, sizeof(access_token));
+  //persist_read_string(MESSAGE_KEY_ACCESS_TOKEN, access_token, sizeof(access_token));
 	
 	app_message_outbox_begin(&iter);
-	dict_write_cstring(iter, MESSAGE_KEY_ACCESS_TOKEN, access_token);
+	//dict_write_cstring(iter, MESSAGE_KEY_ACCESS_TOKEN, access_token);
 	
 	dict_write_end(iter);
   app_message_outbox_send();
@@ -21,16 +22,7 @@ static void access_token_send(){
 static void in_received_handler(DictionaryIterator *iterator, void *context) {
   Tuple *tuple = dict_read_first(iterator);
   while (tuple) {
-    if (tuple->key == MESSAGE_KEY_ACCESS_TOKEN) {
-        /* Is the app setting or requesting? */
-        if (tuple->value->cstring[0]) {
-          /* set */
-          persist_write_string(MESSAGE_KEY_ACCESS_TOKEN, tuple->value->cstring);
-        } else {
-          /* request */
-          access_token_send();
-        }
-    } else if (tuple->key == MESSAGE_KEY_PIN) {
+    if (tuple->key == MESSAGE_KEY_PIN) {
         show_pin_window(tuple->value->cstring);
     }
     tuple = dict_read_next(iterator);

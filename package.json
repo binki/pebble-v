@@ -13,7 +13,6 @@
         "displayName": "The Daily: Productivity Goal Tracker",
         "enableMultiJS": true,
         "messageKeys": [
-            "ACCESS_TOKEN",
             "PIN",
             "READY",
             "MESSAGE"

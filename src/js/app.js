@@ -7,8 +7,6 @@ var endpoint = 'http://brinkdatabase.com/sii';
 var pinUri = endpoint + '/scripts/pin-gen.php';
 var dataUri = endpoint + '/scripts/data-gen.php';
 
-localStorage.setItem();
-
 var always = function (thenable, action) {
   return thenable.then(function (value) {
     action();
@@ -17,25 +15,13 @@ var always = function (thenable, action) {
     action();
     return Promise.reject(ex);
   });
-}
-
-// Function to send a message to the Pebble using AppMessage API
-function sendMessage() {
-	Pebble.sendAppMessage({"status": 0});
-	
-	// PRO TIP: If you are sending more than one message, or a complex set of messages, 
-	// it is important that you setup an ackHandler and a nackHandler and call 
-	// Pebble.sendAppMessage({ /* Message here */ }, ackHandler, nackHandler), which 
-	// will designate the ackHandler and nackHandler that will be called upon the Pebble 
-	// ack-ing or nack-ing the message you just sent. The specified nackHandler will 
-	// also be called if your message send attempt times out.
-}
+};
 
 var AjaxError = function (xhr, status, text) {
   this.xhr = xhr;
   this.status = status;
   this.text = text;
-}
+};
 AjaxError.prototype = new Error();
 
 /**
@@ -50,30 +36,45 @@ var ajax = function (options) {
 
     var xhr = new XMLHttpRequest();
     xhr.addEventListener('load', function () {
-      try
-      {
-        console.log('response: ' + this.responseText);
-        resolve(JSON.parse(this.responseText));
+      if (xhr.responseType === 'json') {
+        return resolve(xhr.response);
       }
-      catch (ex)
-      {
-        reject(ex);
+      if (typeof xhr.response === 'string') {
+        try
+        {
+          return resolve(JSON.parse(xhr.response));
+        }
+        catch (ex)
+        {
+          return reject(ex);
+        }
       }
+      return reject(new Error('Unable to parse response.'));
     });
     xhr.addEventListener('error', function () {
-      if (this.status === 0
-        || this.status >= 500 && this.status < 600) {
+      console.log('error: ' + xhr.status + ', ' + xhr.statusText);
+      if (xhr.status === 0
+        || xhr.status >= 500 && xhr.status < 600) {
         // Retry
-        console.log('Got response: ' + this.status + '. Retrying in 8.');
+        console.log('Got response: ' + xhr.status + '. Retrying in 8.');
         setTimeout(function () {
           ajax.then(resolve, reject);
         }, 8000);
-      } else {
-        reject(new AjaxError(xhr, this.status, this.statusText));
+        return;
       }
+      return reject(new AjaxError(xhr, xhr.status, xhr.statusText));
     });
-    console.log('opening ' + options.uri);
     xhr.open(options.method, options.uri);
+    if (options.data) {
+      if (options.method !== 'POST') {
+        throw new Error('We only support sending data through POST.');
+      }
+      var formData = new FormData();
+      for (var i in options.data) {
+        formData.append(i, options.data[i]);
+      }
+    }
+    xhr.send(formData);
   });
 };
 
@@ -94,10 +95,10 @@ var authenticatedAjax = function (options) {
     return ajax(options).catch(function (ex) {
       if (ex instanceof AjaxError) {
         if (ex.status == 403) {
-          // The API has rejected our token. So mark our token as dead and continue.
-          localStorage.removeItem('access_token');
-          // Try again.
-          return authenticatedAjax(options);
+          // The API has rejected our token. Maybe it needs to be bound still?
+          return bindAccessToken(access_token).then(function () {
+            return authenticatedAjax(options);
+          });
         }
       }
       return Promise.reject(ex);
@@ -105,9 +106,31 @@ var authenticatedAjax = function (options) {
   });
 };
 
+var bindingAccessToken = null;
+/**
+ * Bind an access token (using the PIN workflow).
+ */
+var bindAccessToken = function() {
+  if (bindingAccessToken) {
+    return bindingAccessToken;
+  }
+  return bindingAccessToken = always(getAccessToken().then(function (access_token) {
+    return ajax({
+      uri: pinUri,
+      data: {
+        access_token: access_token,
+      },
+    });
+  }).then(function (data) {
+    throw new Error('dealing with data: ' + JSON.stringify(data));
+  }), function () {
+    bindingAccessToken = null;
+  });
+};
+
 var gettingAccessToken = null;
 /**
- * Get the access token or start the workflow to get one.
+ * Get the access token.
  */
 var getAccessToken = function () {
   if (!gettingAccessToken) {
@@ -117,11 +140,28 @@ var getAccessToken = function () {
       if (access_token) {
         return resolve(access_token);
       }
-      // Start a PIN account binding.
+      // Get an access token.
       resolve(ajax({
         uri: pinUri,
       }).then(function (data) {
-        throw new Error('I still don’t know how to get an access token—even though I got the PIN: ' + JSON.stringify(data));
+        // With a new access token, reset some things—including the log sequence.
+        try
+        {
+          localStorage.setItem('access_token', data.access_token);
+          localStorage.setItem('log_sequence', 0);
+          return getAccessToken();
+        }
+        catch (ex)
+        {
+          if (ex instanceof QuotaExceededError) {
+            // Try clearing the storage and trying again. Yes, this
+            // is to try to recover from a full log preventing us from
+            // authenticating.
+            localStorage.clear();
+            return getAccessToken();
+          }
+          throw ex;
+        }
       }));
     }), function () {
       gettingAccessToken = null;
@@ -176,5 +216,4 @@ Pebble.addEventListener(
 		console.log('Received, err, something ;-): ' + JSON.stringify(e.payload));
 		if (e.payload.status)
 			console.log("Received Status: " + e.payload.status);
-		sendMessage();
 });
