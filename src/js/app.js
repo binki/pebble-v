@@ -1,4 +1,5 @@
-+function () {
+/*jshint funcscope:true*/
+(function () {
 'use strict';
 
 var Promise = require('bluebird');
@@ -18,10 +19,11 @@ var always = function (thenable, action) {
   });
 };
 
-var AjaxError = function (xhr, status, text) {
+var AjaxError = function (xhr, data) {
   this.xhr = xhr;
-  this.status = status;
-  this.text = text;
+  this.status = xhr.status;
+  this.text = xhr.statusText;
+  this.data = data;
 };
 AjaxError.prototype = new Error();
 
@@ -43,37 +45,50 @@ var ajax = function (options) {
       if (typeof xhr.response === 'string') {
         try
         {
-          return resolve(JSON.parse(xhr.response));
+          var data = JSON.parse(xhr.response);      
         }
         catch (ex)
         {
-          return reject(ex);
+          var parseEx = ex;
         }
       }
-      return reject(new Error('Unable to parse response.'));
-    });
-    xhr.addEventListener('error', function () {
-      console.log('error: ' + xhr.status + ', ' + xhr.statusText);
-      if (xhr.status === 0
+      // Handle statuses.
+      if (xhr.status >= 200 && xhr.status < 300) {
+        if (parseEx) {
+          reject(parseEx);
+        } else {
+          resolve(data);
+        }
+      } else if (xhr.status === 0
         || xhr.status >= 500 && xhr.status < 600) {
         // Retry
         console.log('Got response: ' + xhr.status + '. Retrying in 8.');
         setTimeout(function () {
-          ajax.then(resolve, reject);
+          ajax(options).then(resolve, reject);
         }, 8000);
-        return;
+      } else {
+        reject(new AjaxError(xhr, data));
       }
-      return reject(new AjaxError(xhr, xhr.status, xhr.statusText));
+    });
+    xhr.addEventListener('error', function () {
+      // I figure that these errors are the type where the server could not
+      // be reached at all. Our only option is to retry. Not sure on how to
+      // detect when good times to retry are/how to respect mobile power savings.
+      console.log('error: ' + xhr.status + ', ' + xhr.statusText + '. Retrying in 16.');
+      setTimeout(function () {
+        ajax(options).then(resolve, reject);
+      }, 16000);
+    });
+    xhr.addEventListener('abort', function () {
+      reject(new Error('Request aborted.'));
     });
     xhr.open(options.method, options.uri);
     if (options.data) {
       if (options.method !== 'POST') {
         throw new Error('We only support sending data through POST.');
       }
-      var formData = new FormData();
-      for (var i in options.data) {
-        formData.append(i, options.data[i]);
-      }
+      var formData = url.parse(url.format({ query: options.data, })).query;
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     }
     xhr.send(formData);
   });
@@ -90,11 +105,12 @@ var ajax = function (options) {
 var authenticatedAjax = function (options) {
   return getAccessToken().then(function (access_token) {
     console.log('got access token!');
-    var parsedUri = url.parse(options.uri, true);
-    parsedUri.query.access_token = access_token;
-    options.uri = url.format(parsedUri);
+    (options.data = options.data || {}).access_token = access_token;
+    options.method = options.method || 'POST';
     return ajax(options).catch(function (ex) {
+      console.log('error: ' + ex);
       if (ex instanceof AjaxError) {
+console.log('AjaxError with status='+ex.status);
         if (ex.status == 403) {
           // The API has rejected our token. Maybe it needs to be bound still?
           return bindAccessToken(access_token).then(function () {
@@ -115,18 +131,19 @@ var bindAccessToken = function() {
   if (bindingAccessToken) {
     return bindingAccessToken;
   }
-  return bindingAccessToken = always(getAccessToken().then(function (access_token) {
+  return (bindingAccessToken = always(getAccessToken().then(function (access_token) {
     return ajax({
       uri: pinUri,
       data: {
         access_token: access_token,
       },
+      method: 'POST',
     });
   }).then(function (data) {
     throw new Error('dealing with data: ' + JSON.stringify(data));
   }), function () {
     bindingAccessToken = null;
-  });
+  }));
 };
 
 var gettingAccessToken = null;
@@ -178,11 +195,11 @@ var upload = function () {
   if (currentUpload) {
     return currentUpload;
   }
-  return currentUpload = always(authenticatedAjax({
+  return (currentUpload = always(authenticatedAjax({
     uri: 'asdf',
   }), function () {
     currentUpload = null;
-  });
+  }));
 };
 
 var currentDownload = null;
@@ -190,13 +207,13 @@ var download = function () {
   if (currentDownload) {
     return currentDownload;
   }
-  return currentDownload = always(authenticatedAjax({
+  return (currentDownload = always(authenticatedAjax({
     uri: dataUri,
   }).then(function (data) {
     console.log('Got data! ' + JSON.stringify(data));
   }), function () {
     currentDownload = null;
-  });
+  }));
 };
 
 // Called when JS is ready
@@ -220,4 +237,4 @@ Pebble.addEventListener(
 		if (e.payload.status)
 			console.log("Received Status: " + e.payload.status);
 });
-}();
+})();
