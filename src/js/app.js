@@ -1,3 +1,4 @@
++function () {
 'use strict';
 
 var Promise = require('bluebird');
@@ -149,6 +150,7 @@ var getAccessToken = function () {
         {
           localStorage.setItem('access_token', data.access_token);
           localStorage.setItem('log_sequence', 0);
+          gettingAccessToken = null;
           return getAccessToken();
         }
         catch (ex)
@@ -158,6 +160,7 @@ var getAccessToken = function () {
             // is to try to recover from a full log preventing us from
             // authenticating.
             localStorage.clear();
+            gettingAccessToken = null;
             return getAccessToken();
           }
           throw ex;
@@ -217,3 +220,4 @@ Pebble.addEventListener(
 		if (e.payload.status)
 			console.log("Received Status: " + e.payload.status);
 });
+}();
