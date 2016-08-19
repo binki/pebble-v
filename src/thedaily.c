@@ -23,7 +23,13 @@ static void in_received_handler(DictionaryIterator *iterator, void *context) {
   Tuple *tuple = dict_read_first(iterator);
   while (tuple) {
     if (tuple->key == MESSAGE_KEY_PIN) {
+      // Receiving empty string indicates should no longer display.
+      // (Seems that API does not support the concept of null/NULL).
+      if (tuple->value->cstring[0]) {
         show_pin_window(tuple->value->cstring);
+      } else {
+        hide_pin_window();
+      }
     }
     tuple = dict_read_next(iterator);
   }

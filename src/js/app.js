@@ -161,13 +161,14 @@ var bindAccessToken = function() {
       }
       // If it is bound, we’re done! Let the watch know and finish.
       if (data.bound) {
-        Pebble.sendAppMessage({'PIN': null});
+        console.log('requesting pin clear');
+        Pebble.sendAppMessage({PIN: ''});
         return;
       }
       // Not bound yet. Send the PIN to the watch and then check
       // back again…
       console.log('sending pin: ' + data.pin);
-      Pebble.sendAppMessage({'PIN': data.pin});
+      Pebble.sendAppMessage({PIN: data.pin});
       return delay(4000).then(function () {
         bindingAccessToken = null;
         return bindAccessToken();

@@ -59,6 +59,10 @@ void show_pin_window(const char *pin) {
     window_stack_push(s_window, true);
     pin_window_shown = 1;
   }
+  // Ensure our window is on top.
+  while (window_stack_get_top_window() != s_window) {
+    window_stack_remove(window_stack_get_top_window(), false);
+  }
   text_layer_set_text(s_textlayer_pin, pin);
 }
 
