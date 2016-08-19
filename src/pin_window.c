@@ -30,8 +30,8 @@ static void initialise_ui(void) {
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_textlayer_pin);
   
   // s_textlayer_3
-  s_textlayer_3 = text_layer_create(GRect(20, 88, 100, 20));
-  text_layer_set_text(s_textlayer_3, "Visit");
+  s_textlayer_3 = text_layer_create(GRect(10, 88, 123, 71));
+  text_layer_set_text(s_textlayer_3, "Visit http:// brinkdatabase.com /sii/connect");
   text_layer_set_text_alignment(s_textlayer_3, GTextAlignmentCenter);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_textlayer_3);
 }

@@ -19,6 +19,12 @@ var always = function (thenable, action) {
   });
 };
 
+var delay = function (milliseconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, milliseconds);
+  });
+};
+
 var AjaxError = function (xhr, data) {
   this.xhr = xhr;
   this.status = xhr.status;
@@ -113,8 +119,13 @@ var authenticatedAjax = function (options) {
 console.log('AjaxError with status='+ex.status);
         if (ex.status == 403) {
           // The API has rejected our token. Maybe it needs to be bound still?
+          // In case the binding fake “succeeds” fast and tries authenticatedAjax()
+          // again, make sure we’ve at least waited a bit before retrying.
+          var minWait = delay(8000);
           return bindAccessToken(access_token).then(function () {
-            return authenticatedAjax(options);
+            return minWait.then(function () {
+              return authenticatedAjax(options);
+            });
           });
         }
       }
@@ -138,9 +149,30 @@ var bindAccessToken = function() {
         access_token: access_token,
       },
       method: 'POST',
+    }).then (function (data) {
+      // First, verify that we still have the same access_token. If
+      // the PIN binding times out, we will get a different one and must
+      // detect that and request a new one.
+      if (access_token !== data.access_token) {
+        console.log('access_token expired. Getting a new one…');
+        clearAccessToken();
+        bindingAccessToken = null;
+        return bindAccessToken();
+      }
+      // If it is bound, we’re done! Let the watch know and finish.
+      if (data.bound) {
+        Pebble.sendAppMessage({'PIN': null});
+        return;
+      }
+      // Not bound yet. Send the PIN to the watch and then check
+      // back again…
+      console.log('sending pin: ' + data.pin);
+      Pebble.sendAppMessage({'PIN': data.pin});
+      return delay(4000).then(function () {
+        bindingAccessToken = null;
+        return bindAccessToken();
+      });
     });
-  }).then(function (data) {
-    throw new Error('dealing with data: ' + JSON.stringify(data));
   }), function () {
     bindingAccessToken = null;
   }));
@@ -188,6 +220,10 @@ var getAccessToken = function () {
     });
   }
   return gettingAccessToken;
+};
+
+var clearAccessToken = function () {
+  localStorage.removeItem('access_token');
 };
 
 var currentUpload = null;
