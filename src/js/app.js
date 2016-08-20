@@ -261,9 +261,9 @@ Pebble.addEventListener(
     // Let watch know it can start uploading data to us if it wants.
 		Pebble.sendAppMessage({MESSAGE: 'READY'});
     // Upload any logs.
-    upload().catch(function (ex) {console.log('threw');console.log(ex);});
+    upload().catch(function (ex) {console.log('upload failed');console.log(ex);});
     // Download updated data.
-    download().catch(function (ex) {console.log('here');console.log(ex);});
+    download().catch(function (ex) {console.log('download failed');console.log(ex);});
 });
 												
 // Called when incoming message from the Pebble is received

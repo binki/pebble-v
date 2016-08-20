@@ -1,5 +1,8 @@
 #include <pebble.h>
+#include "strdup.h"
 #include "pin_window.h"
+
+static char *shownPin = NULL;
 
 // BEGIN AUTO-GENERATED UI CODE; DO NOT MODIFY
 static Window *s_window;
@@ -51,6 +54,8 @@ static void handle_window_unload(Window* window) {
 static short pin_window_shown = 0;
 
 void show_pin_window(const char *pin) {
+  free(shownPin);
+  shownPin = strdup(pin);
   if (!pin_window_shown) {
     initialise_ui();
     window_set_window_handlers(s_window, (WindowHandlers) {
@@ -63,9 +68,11 @@ void show_pin_window(const char *pin) {
   while (window_stack_get_top_window() != s_window) {
     window_stack_remove(window_stack_get_top_window(), false);
   }
-  text_layer_set_text(s_textlayer_pin, pin);
+  text_layer_set_text(s_textlayer_pin, shownPin);
 }
 
 void hide_pin_window(void) {
+  free(shownPin);
+  shownPin = NULL;
   window_stack_remove(s_window, true);
 }
