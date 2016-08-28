@@ -1,22 +1,7 @@
 #include <pebble.h>
-#include "activity.h"
-#include "yesno_question.h"
+#include "composition.h"
+#include "event.h"
 #include "pin_window.h"
-
-// Write message to buffer & send
-static void access_token_send(){
-  return;
-	DictionaryIterator *iter;
-  char access_token[PERSIST_DATA_MAX_LENGTH] = "";
-
-  //persist_read_string(MESSAGE_KEY_ACCESS_TOKEN, access_token, sizeof(access_token));
-	
-	app_message_outbox_begin(&iter);
-	//dict_write_cstring(iter, MESSAGE_KEY_ACCESS_TOKEN, access_token);
-	
-	dict_write_end(iter);
-  app_message_outbox_send();
-}
 
 // Called when a message is received from PebbleKitJS
 static void in_received_handler(DictionaryIterator *iterator, void *context) {
@@ -43,31 +28,34 @@ static void in_dropped_handler(AppMessageResult reason, void *context) {
 static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reason, void *context) {
 }
 
-static void handle_yesno_question_hidden_callback(yesno_question_answer answer) {
-	DictionaryIterator *iter;
-	
-	app_message_outbox_begin(&iter);
-	dict_write_uint8(iter, MESSAGE_KEY_PIN, answer);
-	
-	dict_write_end(iter);
-	app_message_outbox_send();
-
-  // Now pause for a minute and redisplay?
-}
-
 void init(void) {
+  composition_init();
 	// Register AppMessage handlers
 	app_message_register_inbox_received(in_received_handler); 
-	app_message_register_inbox_dropped(in_dropped_handler); 
+	app_message_register_inbox_dropped(in_dropped_handler);
 	app_message_register_outbox_failed(out_failed_handler);
-		
-	app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-	
-	show_yesno_question("This is my question", handle_yesno_question_hidden_callback);
+
+  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+
+  event_init();
+
+  // Now do launch reason-specific action
+  switch (launch_reason())
+  {
+    case APP_LAUNCH_WAKEUP:
+      // Launch the question.
+      break;
+    case APP_LAUNCH_USER:
+    default:
+      // Launch the menu.
+      break;
+  }
 }
 
 void deinit(void) {
 	app_message_deregister_callbacks();
+  event_deinit();
+  composition_deinit();
 }
 
 int main( void ) {
