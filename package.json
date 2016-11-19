@@ -7,15 +7,21 @@
     "keywords": [],
     "name": "the-daily",
     "pebble": {
-        "capabilities": [
-            ""
-        ],
         "displayName": "The Daily: Productivity Goal Tracker",
         "enableMultiJS": true,
         "messageKeys": [
             "PIN",
             "READY",
-            "MESSAGE"
+            "MESSAGE",
+            "EVENT_LAUNCH_LABEL",
+            "TYPE",
+            "EVENT",
+            "QUESTION",
+            "EVENT_NEXT",
+            "EVENT_DELETE",
+            "EVENT_KEY",
+            "ACK",
+            "NACK"
         ],
         "projectType": "native",
         "resources": {
