@@ -3,6 +3,8 @@
 #include "v.h"
 #endif
 
+extern inline int v_count(V *v);
+
 void v_init(V *v, uint8_t slice_size)
 {
   v->slice_size = slice_size;

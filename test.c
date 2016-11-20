@@ -29,7 +29,9 @@ int main(int argc, const char *const argv[]) {
   buf = 2;
   assert(-1 == v_find(&thing, intcmp, &buf));
 
+  assert(2 == v_count(&thing));
   v_compact(&thing);
+  assert(2 == v_count(&thing));
 
   buf = 0;
   assert(!intcmp(&buf, v_get(&thing, 0)));
@@ -37,19 +39,23 @@ int main(int argc, const char *const argv[]) {
   assert(!intcmp(&buf, v_get(&thing, 1)));
 
   v_remove(&thing, 0);
+  assert(1 == v_count(&thing));
   assert(!intcmp(&buf, v_get(&thing, 0)));
   assert(0 == v_find(&thing, intcmp, &buf));
   buf = 0;
   assert(-1 == v_find(&thing, intcmp, &buf));
 
   v_remove(&thing, 0);
+  assert(0 == v_count(&thing));
   assert(-1 == v_find(&thing, intcmp, &buf));
   buf = 0;
   assert(-1 == v_find(&thing, intcmp, &buf));
 
   v_compact(&thing);
+  assert(0 == v_count(&thing));
 
   v_add(&thing, &buf);
+  assert(1 == v_count(&thing));
   assert(0 == v_find(&thing, intcmp, &buf));
   assert(!intcmp(&buf, v_get(&thing, 0)));
 
