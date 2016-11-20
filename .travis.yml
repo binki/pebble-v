@@ -1,5 +1,5 @@
 before_install:
-- sudo apt-get install python-virtualenv
+- sudo apt-get install python-virtualenv valgrind
 - 'mkdir -p ~/.pebble-sdk'
 - 'touch ~/.pebble-sdk/ENABLE_ANALYTICS'
 - "curl -L https://s3.amazonaws.com/assets.getpebble.com/pebble-tool/pebble-sdk-4.5-linux64.tar.bz2 | tar -xjC /tmp"

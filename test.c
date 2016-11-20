@@ -35,5 +35,7 @@ int main(int argc, const char *const argv[]) {
   buf = 1;
   assert(!intcmp(&buf, v_get(&thing, 1)));
 
+  v_deinit(&thing);
+
   return 0;
 }
