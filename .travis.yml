@@ -11,6 +11,8 @@ before_install:
 - deactivate
 - 'yes | pebble sdk install "$(pebble sdk list | grep -e "^[[:digit:]]" | head -n 1)"'
 language: node_js
+node_js:
+- "6"
 script:
 - npm test
 - pebble build
