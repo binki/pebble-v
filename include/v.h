@@ -1,3 +1,7 @@
+/*!
+ * Copyright (C) 2016 Nathan Phillip Brink
+ * Distributed under the terms of the MIT license, see LICENSE.md.
+ */
 #pragma once
 
 typedef struct {
