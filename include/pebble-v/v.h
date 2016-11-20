@@ -1,7 +1,5 @@
 #pragma once
 
-#include <pebble.h>
-
 typedef struct {
   uint8_t slice_size;
   uint8_t count;
@@ -20,5 +18,3 @@ extern void v_compact(V *v);
 typedef int (*v_cmp_t)(void *a, void *b);
 
 extern int v_find(V *v, v_cmp_t cmp, void *thing);
-
-extern void v_testsuite();

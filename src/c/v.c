@@ -1,6 +1,7 @@
+#ifndef PEBBLE_V_TEST
 #include <pebble.h>
-#include "assert.h"
-#include "v.h"
+#include "pebble-v/v.h"
+#endif
 
 void v_init(V *v, uint8_t slice_size)
 {
@@ -36,7 +37,7 @@ int v_add(V *v, void *slice) {
       }
     }
   }
-  memcpy(v->buf + v->count*v->slice_size, slice, v->slice_size);
+  memcpy(&((uint8_t *)v->buf)[v->count*v->slice_size], slice, v->slice_size);
   v->count++;
   return 0;
 }
@@ -50,7 +51,7 @@ void v_remove(V *v, uint8_t i) {
   if (i == v->count) {
     return;
   }
-  memmove(v->buf + i * v->slice_size, v->buf + (i + 1) * v->slice_size, (v->count - i) * v->slice_size);
+  memmove(&((uint8_t *)v->buf)[i * v->slice_size], &((uint8_t *)v->buf)[(i + 1) * v->slice_size], (v->count - i) * v->slice_size);
 }
 
 void v_compact(V *v)
@@ -80,21 +81,4 @@ int v_find(V *v, v_cmp_t cmp, void *thing) {
 
 static int v_testsuite_intcmp(void *a, void *b) {
   return memcmp(a, b, sizeof(int));
-}
-
-void v_testsuite() {
-  V thing;
-  v_init(&thing, sizeof(int));
-  int buf = 1;
-  assert(0 == v_add(&thing, &buf));
-  buf = 2;
-  assert(0 == v_add(&thing, &buf));
-  assert(1 == v_find(&thing, v_testsuite_intcmp, &buf));
-  assert(0 == memcmp(&buf, v_get(&thing, 1), sizeof(int)));
-  buf = 1;
-  assert(0 == v_find(&thing, v_testsuite_intcmp, &buf));
-  assert(0 == memcmp(&buf, v_get(&thing, 0), sizeof(int)));
-  buf = 0;
-  assert(-1 == v_find(&thing, v_testsuite_intcmp, &buf));
-  v_deinit(&thing);
 }

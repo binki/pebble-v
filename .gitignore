@@ -1,0 +1,11 @@
+*.swp
+*~
+*\#*
+*.o
+.lock*
+*.zip
+
+# built binary
+/test
+
+/build
