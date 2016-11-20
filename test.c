@@ -4,7 +4,7 @@
 #include <string.h>
 
 #define PEBBLE_V_TEST
-#include "include/pebble-v/v.h"
+#include "include/v.h"
 #include "src/c/v.c"
 
 static int intcmp(void *a, void *b) {

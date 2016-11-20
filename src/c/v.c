@@ -1,6 +1,6 @@
 #ifndef PEBBLE_V_TEST
 #include <pebble.h>
-#include "pebble-v/v.h"
+#include "v.h"
 #endif
 
 void v_init(V *v, uint8_t slice_size)
