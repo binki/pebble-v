@@ -1,17 +1,17 @@
 #pragma once
 
 typedef struct {
-  uint8_t slice_size;
-  uint8_t count;
-  uint8_t capacity;
-  void *buf;
+  uint8_t _slice_size;
+  uint8_t _count;
+  uint8_t _capacity;
+  void *_buf;
 } V;
 
 extern void v_init(V *v, uint8_t slice_size);
 extern void v_deinit(V *v);
 
 inline int v_count(V *v) {
-  return v->count;
+  return v->_count;
 }
 
 extern int v_add(V *v, void *slice);
