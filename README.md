@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/binki/pebble-v.svg?branch=master)](https://travis-ci.org/binki/pebble-v)
 
+Simple C vector library for Pebble.
+
 # Synopsis
 
     #include <pebble-v/v.h>
