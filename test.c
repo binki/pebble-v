@@ -30,10 +30,28 @@ int main(int argc, const char *const argv[]) {
   assert(-1 == v_find(&thing, intcmp, &buf));
 
   v_compact(&thing);
+
   buf = 0;
   assert(!intcmp(&buf, v_get(&thing, 0)));
   buf = 1;
   assert(!intcmp(&buf, v_get(&thing, 1)));
+
+  v_remove(&thing, 0);
+  assert(!intcmp(&buf, v_get(&thing, 0)));
+  assert(0 == v_find(&thing, intcmp, &buf));
+  buf = 0;
+  assert(-1 == v_find(&thing, intcmp, &buf));
+
+  v_remove(&thing, 0);
+  assert(-1 == v_find(&thing, intcmp, &buf));
+  buf = 0;
+  assert(-1 == v_find(&thing, intcmp, &buf));
+
+  v_compact(&thing);
+
+  v_add(&thing, &buf);
+  assert(0 == v_find(&thing, intcmp, &buf));
+  assert(!intcmp(&buf, v_get(&thing, 0)));
 
   v_deinit(&thing);
 

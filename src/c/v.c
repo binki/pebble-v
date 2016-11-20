@@ -18,9 +18,17 @@ void v_deinit(V *v)
 
 static int v_expand(V *v, uint8_t capacity)
 {
-  void *new_buf = realloc(v->buf, capacity * v->slice_size);
-  if (!new_buf) {
-    return 1;
+  void *new_buf = NULL;
+  if (capacity) {
+    new_buf = realloc(v->buf, capacity * v->slice_size);
+    if (!new_buf) {
+      return 1;
+    }
+  } else {
+    // If capacity is 0, set to NULL. realloc() is allowed to do weird
+    // things in this case and easier to just avoid calling it with
+    // size=0.
+    free(v->buf);
   }
 
   v->buf = new_buf;
