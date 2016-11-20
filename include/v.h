@@ -5,10 +5,12 @@
 #pragma once
 
 typedef struct {
+  // First to potentially reduce amount of pointer
+  // indirection. Probably pointless.
+  void *_buf;
   uint8_t _slice_size;
   uint8_t _count;
   uint8_t _capacity;
-  void *_buf;
 } V;
 
 extern void v_init(V *v, uint8_t slice_size);
