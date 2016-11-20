@@ -4,6 +4,7 @@
 *.o
 .lock*
 *.zip
+core
 
 # built binary
 /test
