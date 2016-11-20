@@ -5,6 +5,7 @@
   "files": ["dist.zip"],
   "keywords": ["pebble-package"],
   "dependencies": {},
+  "license": "MIT",
   "pebble": {
     "projectType": "package",
     "sdkVersion": "3",
