@@ -7,7 +7,7 @@ before_install:
 - 'export PATH=${PATH}:${T_PEBBLE_SDK_ROOT}/bin'
 - 'virtualenv --no-site-packages "${T_PEBBLE_SDK_ROOT}"/.env'
 - 'source "${T_PEBBLE_SDK_ROOT}"/.env/bin/activate'
-- 'pip install -r "${T_PEBBLE_SDK_ROOT}"/../requirements.txt'
+- 'pip install -r "${T_PEBBLE_SDK_ROOT}"/requirements.txt'
 - deactivate
 - 'yes | pebble sdk install "$(pebble sdk list | grep -e "^[[:digit:]]" | head -n 1)"'
 language: node_js
